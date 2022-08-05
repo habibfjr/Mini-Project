@@ -30,3 +30,19 @@ func (jr JobsRepositoryDB) FindAll() ([]Jobs, error) {
 	return jobs, nil
 
 }
+
+// func (jr JobsRepositoryDB) FindByID() ([]Jobs, error) {
+
+// var j Jobs
+
+// result := jr.db.Find(&jobs)
+// // err := result.Error
+
+// if err != nil {
+// 	logger.Error("error fetch data to customer table " + err.Error())
+// 	return nil, err
+// }
+
+// return jobs, nil
+
+// }

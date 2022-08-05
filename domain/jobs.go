@@ -3,7 +3,7 @@ package domain
 import "gomp/dto"
 
 type Jobs struct {
-	ID        int    `json:"id" gorm:"column:job_id"`
+	ID        uint   `json:"id" gorm:"column:job_id"`
 	Title     string `json:"title"`
 	City      string `json:"city"`
 	Status    string `json:"status"`
