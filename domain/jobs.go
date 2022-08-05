@@ -3,7 +3,7 @@ package domain
 import "gomp/dto"
 
 type Jobs struct {
-	ID        uint   `json:"id" gorm:"column:job_id"`
+	ID        int    `json:"id" gorm:"column:job_id"`
 	Title     string `json:"title"`
 	City      string `json:"city"`
 	Status    string `json:"status"`
@@ -12,7 +12,7 @@ type Jobs struct {
 
 type JobsRepository interface {
 	FindAll() ([]Jobs, error)
-	// FindByID(string) (*Customer, *errs.AppErr)
+	FindByID(int) (*Jobs, error)
 }
 
 func (j Jobs) convertJobStatus() string {

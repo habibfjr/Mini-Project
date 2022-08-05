@@ -1,33 +1,39 @@
 package app
 
 import (
-	"encoding/json"
 	"gomp/service"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 type JobsHandler struct {
-	Service service.JobsService
+	service service.JobsService
 }
 
 func (jh *JobsHandler) getAll(c *gin.Context) {
-	jobs, err := jh.Service.GetAllJobs()
+	jobs, err := jh.service.GetAllJobs()
 
 	if err != nil {
-		writeResponse(c.Writer, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, nil)
 		return
 	}
 
-	writeResponse(c.Writer, http.StatusOK, jobs)
+	c.JSON(http.StatusOK, jobs)
 }
 
-func writeResponse(w http.ResponseWriter, code int, data interface{}) {
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(code)
+func (jh *JobsHandler) getJobsByID(c *gin.Context) {
+	// claims := r.Context().Value(userInfo)
+	// logger.Info(fmt.Sprintf("claims: %v", claims))
 
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		panic(err)
+	id := c.Param("id")
+	newId, _ := strconv.Atoi(id)
+	jobs, err := jh.service.GetJobsByID(newId)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, nil)
 	}
+
+	c.JSON(http.StatusOK, jobs)
 }

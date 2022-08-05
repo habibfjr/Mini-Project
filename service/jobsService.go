@@ -7,7 +7,7 @@ import (
 
 type JobsService interface {
 	GetAllJobs() ([]dto.JobsResponse, error)
-	// GetCustomerByID(string) (*dto.CustomerResponse, *errs.AppErr)
+	GetJobsByID(int) (*dto.JobsResponse, error)
 }
 
 type DefaultJobsService struct {
@@ -26,6 +26,17 @@ func (s DefaultJobsService) GetAllJobs() ([]dto.JobsResponse, error) {
 	}
 
 	return response, nil
+}
+
+func (s DefaultJobsService) GetJobsByID(jobsID int) (*dto.JobsResponse, error) {
+	j, err := s.repo.FindByID(jobsID)
+	if err != nil {
+		return nil, err
+	}
+
+	response := j.ToDTO()
+
+	return &response, nil
 }
 
 func NewJobsService(repository domain.JobsRepository) DefaultJobsService {

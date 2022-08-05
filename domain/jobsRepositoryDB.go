@@ -31,18 +31,16 @@ func (jr JobsRepositoryDB) FindAll() ([]Jobs, error) {
 
 }
 
-// func (jr JobsRepositoryDB) FindByID() ([]Jobs, error) {
+func (jr JobsRepositoryDB) FindByID(id int) (*Jobs, error) {
+	var j Jobs
+	query := jr.db.First(&j, "job_id = ?", id)
+	err := query.Error
 
-// var j Jobs
+	if err != nil {
+		logger.Error("error fetch data to customer table " + err.Error())
+		return nil, err
+	}
 
-// result := jr.db.Find(&jobs)
-// // err := result.Error
+	return &j, nil
 
-// if err != nil {
-// 	logger.Error("error fetch data to customer table " + err.Error())
-// 	return nil, err
-// }
-
-// return jobs, nil
-
-// }
+}

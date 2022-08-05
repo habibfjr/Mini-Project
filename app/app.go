@@ -53,6 +53,9 @@ func Start() {
 	router := gin.Default()
 
 	router.GET("/jobs", jh.getAll)
+
+	router.GET("/jobs/:id", jh.getJobsByID)
+
 	router.Run(":8000")
 }
 func getClientDB() *gorm.DB {
