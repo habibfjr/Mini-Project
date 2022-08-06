@@ -56,3 +56,14 @@ func (jr JobsRepositoryDB) AddJob(j Jobs) (*Jobs, error) {
 
 	return &j, nil
 }
+
+func (jr JobsRepositoryDB) UpdateJob(id int, j Jobs) (*Jobs, error) {
+	query := jr.db.Model(&j).Where("job_id = ?", id).Updates(j)
+	err := query.Error
+	if err != nil {
+		logger.Error("error updating data" + err.Error())
+		return nil, err
+	}
+
+	return &j, nil
+}

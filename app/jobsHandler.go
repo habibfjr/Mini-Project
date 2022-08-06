@@ -29,8 +29,8 @@ func (jh *JobsHandler) getJobsByID(c *gin.Context) {
 	// logger.Info(fmt.Sprintf("claims: %v", claims))
 
 	id := c.Param("id")
-	newId, _ := strconv.Atoi(id)
-	jobs, err := jh.service.GetJobsByID(newId)
+	getId, _ := strconv.Atoi(id)
+	jobs, err := jh.service.GetJobsByID(getId)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
@@ -43,6 +43,19 @@ func (jh *JobsHandler) createJob(c *gin.Context) {
 	var input dto.NewJob
 	err := c.ShouldBindJSON(&input)
 	jobs, _ := jh.service.CreateJob(input)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, nil)
+		return
+	}
+	c.JSON(http.StatusOK, jobs)
+}
+
+func (jh *JobsHandler) updateJob(c *gin.Context) {
+	id := c.Param("id")
+	getId, _ := strconv.Atoi(id)
+	var input dto.NewJob
+	err := c.ShouldBindJSON(&input)
+	jobs, _ := jh.service.UpdateJob(getId, input)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
 		return

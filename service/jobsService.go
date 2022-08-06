@@ -9,6 +9,7 @@ type JobsService interface {
 	GetAllJobs() ([]dto.JobsResponse, error)
 	GetJobsByID(int) (*dto.JobsResponse, error)
 	CreateJob(dto.NewJob) (*dto.JobsResponse, error)
+	UpdateJob(int, dto.NewJob) (*dto.JobsResponse, error)
 }
 
 type DefaultJobsService struct {
@@ -48,6 +49,23 @@ func (s DefaultJobsService) CreateJob(nj dto.NewJob) (*dto.JobsResponse, error) 
 	j.CompanyID = nj.CompanyID
 
 	jobs, err := s.repo.AddJob(j)
+	if err != nil {
+		return nil, err
+	}
+
+	res := jobs.ToDTO()
+
+	return &res, nil
+}
+
+func (s DefaultJobsService) UpdateJob(id int, uj dto.NewJob) (*dto.JobsResponse, error) {
+	j := domain.Jobs{}
+	j.Title = uj.Title
+	j.City = uj.City
+	j.Status = uj.Status
+	j.CompanyID = uj.CompanyID
+
+	jobs, err := s.repo.UpdateJob(id, j)
 	if err != nil {
 		return nil, err
 	}

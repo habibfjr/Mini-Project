@@ -60,6 +60,8 @@ func Start() {
 
 	router.POST("/jobs", jh.createJob)
 
+	router.PUT("/jobs/:id", jh.updateJob)
+
 	router.Run(":8000")
 }
 func getClientDB() *gorm.DB {
