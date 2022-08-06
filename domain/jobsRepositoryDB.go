@@ -44,3 +44,15 @@ func (jr JobsRepositoryDB) FindByID(id int) (*Jobs, error) {
 	return &j, nil
 
 }
+
+func (jr JobsRepositoryDB) AddJob(j Jobs) (*Jobs, error) {
+	query := jr.db.Create(&j)
+	err := query.Error
+
+	if err != nil {
+		logger.Error("error creating data" + err.Error())
+		return nil, err
+	}
+
+	return &j, nil
+}

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"gomp/dto"
 	"gomp/service"
 	"net/http"
 	"strconv"
@@ -35,5 +36,16 @@ func (jh *JobsHandler) getJobsByID(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, nil)
 	}
 
+	c.JSON(http.StatusOK, jobs)
+}
+
+func (jh *JobsHandler) createJob(c *gin.Context) {
+	var input dto.NewJob
+	err := c.ShouldBindJSON(&input)
+	jobs, _ := jh.service.CreateJob(input)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, nil)
+		return
+	}
 	c.JSON(http.StatusOK, jobs)
 }

@@ -45,9 +45,11 @@ func Start() {
 	sanityCheck()
 
 	dbClient := getClientDB()
-	// fmt.Println(dbClient)
+
 	jobsRepositoryDB := domain.NewJobsRepositoryDB(dbClient)
+
 	jobsService := service.NewJobsService(&jobsRepositoryDB)
+
 	jh := JobsHandler{jobsService}
 
 	router := gin.Default()
@@ -55,6 +57,8 @@ func Start() {
 	router.GET("/jobs", jh.getAll)
 
 	router.GET("/jobs/:id", jh.getJobsByID)
+
+	router.POST("/jobs", jh.createJob)
 
 	router.Run(":8000")
 }

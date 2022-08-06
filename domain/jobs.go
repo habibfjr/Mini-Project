@@ -13,6 +13,7 @@ type Jobs struct {
 type JobsRepository interface {
 	FindAll() ([]Jobs, error)
 	FindByID(int) (*Jobs, error)
+	AddJob(Jobs) (*Jobs, error)
 }
 
 func (j Jobs) convertJobStatus() string {
