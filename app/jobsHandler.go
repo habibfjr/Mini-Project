@@ -62,3 +62,14 @@ func (jh *JobsHandler) updateJob(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, jobs)
 }
+
+func (jh *JobsHandler) deleteJob(c *gin.Context) {
+	id := c.Param("id")
+	getId, _ := strconv.Atoi(id)
+	_, err := jh.service.DeleteJob(getId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, nil)
+		return
+	}
+	c.JSON(http.StatusOK, "successfully deleted job")
+}

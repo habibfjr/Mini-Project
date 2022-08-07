@@ -15,6 +15,7 @@ type JobsRepository interface {
 	FindByID(int) (*Jobs, error)
 	AddJob(Jobs) (*Jobs, error)
 	UpdateJob(int, Jobs) (*Jobs, error)
+	DeleteJob(int) (*Jobs, error)
 }
 
 func (j Jobs) convertJobStatus() string {

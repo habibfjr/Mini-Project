@@ -62,6 +62,8 @@ func Start() {
 
 	router.PUT("/jobs/:id", jh.updateJob)
 
+	router.DELETE("/jobs/:id", jh.deleteJob)
+
 	router.Run(":8000")
 }
 func getClientDB() *gorm.DB {

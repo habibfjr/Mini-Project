@@ -50,7 +50,7 @@ func (jr JobsRepositoryDB) AddJob(j Jobs) (*Jobs, error) {
 	err := query.Error
 
 	if err != nil {
-		logger.Error("error creating data" + err.Error())
+		logger.Error("error creating data " + err.Error())
 		return nil, err
 	}
 
@@ -61,7 +61,19 @@ func (jr JobsRepositoryDB) UpdateJob(id int, j Jobs) (*Jobs, error) {
 	query := jr.db.Model(&j).Where("job_id = ?", id).Updates(j)
 	err := query.Error
 	if err != nil {
-		logger.Error("error updating data" + err.Error())
+		logger.Error("error updating data " + err.Error())
+		return nil, err
+	}
+
+	return &j, nil
+}
+
+func (jr JobsRepositoryDB) DeleteJob(id int) (*Jobs, error) {
+	var j Jobs
+	query := jr.db.Delete(&j, "job_id = ?", id)
+	err := query.Error
+	if err != nil {
+		logger.Error("failed to delete data " + err.Error())
 		return nil, err
 	}
 
