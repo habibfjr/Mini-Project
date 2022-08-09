@@ -6,7 +6,7 @@ import (
 )
 
 type JobsService interface {
-	GetAllJobs() ([]dto.JobsResponse, error)
+	GetAllJobs(dto.Pagination) (dto.Pagination, error)
 	GetJobsByID(int) (*dto.JobsResponse, error)
 	CreateJob(dto.NewJob) (*dto.JobsResponse, error)
 	UpdateJob(int, dto.NewJob) (*dto.JobsResponse, error)
@@ -17,18 +17,13 @@ type DefaultJobsService struct {
 	repo domain.JobsRepository
 }
 
-func (s DefaultJobsService) GetAllJobs() ([]dto.JobsResponse, error) {
-	customers, err := s.repo.FindAll()
+func (s DefaultJobsService) GetAllJobs(p dto.Pagination) (dto.Pagination, error) {
+	jobs, err := s.repo.FindAll(p)
 	if err != nil {
-		return nil, err
+		return jobs, err
 	}
 
-	var response []dto.JobsResponse
-	for _, customer := range customers {
-		response = append(response, customer.ToDTO())
-	}
-
-	return response, nil
+	return jobs, nil
 }
 
 func (s DefaultJobsService) GetJobsByID(jobsID int) (*dto.JobsResponse, error) {

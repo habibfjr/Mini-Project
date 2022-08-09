@@ -2,9 +2,11 @@ package app
 
 import (
 	"fmt"
+	"gomp/auth"
 	"gomp/domain"
 	"gomp/logger"
 	"gomp/service"
+	"gomp/users"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -47,10 +49,17 @@ func Start() {
 	dbClient := getClientDB()
 
 	jobsRepositoryDB := domain.NewJobsRepositoryDB(dbClient)
+	userRepositoryDB := users.NewUserRepositoryDB(dbClient)
+	// authRepositoryDB := domain.NewAuthRepositoryDB(dbClient)
 
 	jobsService := service.NewJobsService(&jobsRepositoryDB)
+	userService := users.NewUserService(&userRepositoryDB)
+	authService := auth.NewService()
+	// authService := service.NewAuthService(authRepositoryDB)
 
 	jh := JobsHandler{jobsService}
+	uh := users.NewUserHandler(userService, authService)
+	// ah := AuthHandler{authService}
 
 	router := gin.Default()
 
@@ -63,6 +72,10 @@ func Start() {
 	router.PUT("/jobs/:id", jh.updateJob)
 
 	router.DELETE("/jobs/:id", jh.deleteJob)
+
+	router.POST("/users", uh.CreateUser)
+
+	router.POST("/login", uh.LoginUser)
 
 	router.Run(":8000")
 }

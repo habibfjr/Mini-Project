@@ -13,8 +13,15 @@ type JobsHandler struct {
 	service service.JobsService
 }
 
+func PaginationReq(c *gin.Context) *dto.Pagination {
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "0"))
+	return &dto.Pagination{Limit: limit, Page: page}
+}
+
 func (jh *JobsHandler) getAll(c *gin.Context) {
-	jobs, err := jh.service.GetAllJobs()
+	pagination := PaginationReq(c)
+	jobs, err := jh.service.GetAllJobs(*pagination)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
@@ -25,8 +32,6 @@ func (jh *JobsHandler) getAll(c *gin.Context) {
 }
 
 func (jh *JobsHandler) getJobsByID(c *gin.Context) {
-	// claims := r.Context().Value(userInfo)
-	// logger.Info(fmt.Sprintf("claims: %v", claims))
 
 	id := c.Param("id")
 	getId, _ := strconv.Atoi(id)

@@ -5,5 +5,5 @@ type JobsResponse struct {
 	Title     string `json:"title" gorm:"column:title"`
 	City      string `json:"city" gorm:"column:city"`
 	Status    string `json:"status" gorm:"column:status"`
-	CompanyID uint   `json:"company_id" gorm:"column:company_id"`
+	CompanyID int32  `json:"company_id" gorm:"column:company_id"`
 }
