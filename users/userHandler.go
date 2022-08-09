@@ -30,7 +30,7 @@ func (uh *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	token, err := uh.authService.GenerateToken(user.Username)
+	token, err := uh.authService.GenerateToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
 		return
@@ -59,7 +59,7 @@ func (uh *UserHandler) LoginUser(c *gin.Context) {
 		return
 	}
 
-	token, err := uh.authService.GenerateToken(loginUser.Username)
+	token, err := uh.authService.GenerateToken(loginUser.ID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
 	}

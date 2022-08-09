@@ -7,7 +7,9 @@ import (
 	"gomp/logger"
 	"gomp/service"
 	"gomp/users"
+	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -48,30 +50,31 @@ func Start() {
 
 	dbClient := getClientDB()
 
+	// init repo
 	jobsRepositoryDB := domain.NewJobsRepositoryDB(dbClient)
 	userRepositoryDB := users.NewUserRepositoryDB(dbClient)
-	// authRepositoryDB := domain.NewAuthRepositoryDB(dbClient)
 
+	// init service
 	jobsService := service.NewJobsService(&jobsRepositoryDB)
 	userService := users.NewUserService(&userRepositoryDB)
 	authService := auth.NewService()
-	// authService := service.NewAuthService(authRepositoryDB)
 
+	// init handlers
 	jh := JobsHandler{jobsService}
 	uh := users.NewUserHandler(userService, authService)
-	// ah := AuthHandler{authService}
 
 	router := gin.Default()
 
-	router.GET("/jobs", jh.getAll)
+	// api routes
+	router.GET("/jobs", authMiddleware(authService, userService), jh.getAll)
 
-	router.GET("/jobs/:id", jh.getJobsByID)
+	router.GET("/jobs/:id", authMiddleware(authService, userService), jh.getJobsByID)
 
-	router.POST("/jobs", jh.createJob)
+	router.POST("/jobs", authMiddleware(authService, userService), jh.createJob)
 
-	router.PUT("/jobs/:id", jh.updateJob)
+	router.PUT("/jobs/:id", authMiddleware(authService, userService), jh.updateJob)
 
-	router.DELETE("/jobs/:id", jh.deleteJob)
+	router.DELETE("/jobs/:id", authMiddleware(authService, userService), jh.deleteJob)
 
 	router.POST("/users", uh.CreateUser)
 
@@ -95,4 +98,33 @@ func getClientDB() *gorm.DB {
 	logger.Info("success connect to database...")
 
 	return db
+}
+
+// token authorization
+func authMiddleware(auth auth.Service, user users.UserService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if !strings.Contains(authHeader, "Bearer") {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, "Unauthorized")
+			return
+		}
+
+		tokenString := ""
+		tokenArray := strings.Split(authHeader, " ")
+		if len(tokenArray) == 2 {
+			tokenString = tokenArray[1]
+		}
+		result, userId, err := auth.ValidateToken(tokenString)
+		if err != nil && !result && userId == 0 {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, "Unauthorized")
+			return
+		} else {
+			user, err := user.GetUserByID(userId)
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, "Unauthorized")
+				return
+			}
+			c.Set("currentUser", user)
+		}
+	}
 }

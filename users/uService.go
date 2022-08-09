@@ -1,6 +1,7 @@
 package users
 
 import (
+	"errors"
 	"gomp/logger"
 
 	"golang.org/x/crypto/bcrypt"
@@ -9,6 +10,7 @@ import (
 type UserService interface {
 	CreateUser(RegisterInput) (Users, error)
 	LoginUser(LoginInput) (Users, error)
+	GetUserByID(int) (Users, error)
 }
 
 type DefaultUserService struct {
@@ -63,5 +65,16 @@ func (u DefaultUserService) LoginUser(input LoginInput) (Users, error) {
 		return user, err
 	}
 
+	return user, nil
+}
+
+func (u DefaultUserService) GetUserByID(id int) (Users, error) {
+	user, err := u.repo.FindByID(id)
+	if err != nil {
+		return user, err
+	}
+	if user.Username == "" {
+		return user, errors.New("no member found on that email")
+	}
 	return user, nil
 }

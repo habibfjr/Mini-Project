@@ -3,6 +3,7 @@ package app
 import (
 	"gomp/dto"
 	"gomp/service"
+	"gomp/users"
 	"net/http"
 	"strconv"
 
@@ -19,9 +20,16 @@ func PaginationReq(c *gin.Context) *dto.Pagination {
 	return &dto.Pagination{Limit: limit, Page: page}
 }
 
+func getCurrentJWT(c *gin.Context) int {
+	cUser := c.MustGet("currentUser").(users.Users)
+	userID := cUser.ID
+	return userID
+}
+
 func (jh *JobsHandler) getAll(c *gin.Context) {
+	userID := getCurrentJWT(c)
 	pagination := PaginationReq(c)
-	jobs, err := jh.service.GetAllJobs(*pagination)
+	jobs, err := jh.service.GetAllJobs(*pagination, userID)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
@@ -35,7 +43,8 @@ func (jh *JobsHandler) getJobsByID(c *gin.Context) {
 
 	id := c.Param("id")
 	getId, _ := strconv.Atoi(id)
-	jobs, err := jh.service.GetJobsByID(getId)
+	userID := getCurrentJWT(c)
+	jobs, err := jh.service.GetJobsByID(getId, userID)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
@@ -47,7 +56,12 @@ func (jh *JobsHandler) getJobsByID(c *gin.Context) {
 func (jh *JobsHandler) createJob(c *gin.Context) {
 	var input dto.NewJob
 	err := c.ShouldBindJSON(&input)
-	jobs, _ := jh.service.CreateJob(input)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, nil)
+		return
+	}
+	userID := getCurrentJWT(c)
+	jobs, err := jh.service.CreateJob(input, userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
 		return
@@ -60,7 +74,12 @@ func (jh *JobsHandler) updateJob(c *gin.Context) {
 	getId, _ := strconv.Atoi(id)
 	var input dto.NewJob
 	err := c.ShouldBindJSON(&input)
-	jobs, _ := jh.service.UpdateJob(getId, input)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, nil)
+		return
+	}
+	userID := getCurrentJWT(c)
+	jobs, err := jh.service.UpdateJob(getId, input, userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
 		return
@@ -71,7 +90,8 @@ func (jh *JobsHandler) updateJob(c *gin.Context) {
 func (jh *JobsHandler) deleteJob(c *gin.Context) {
 	id := c.Param("id")
 	getId, _ := strconv.Atoi(id)
-	_, err := jh.service.DeleteJob(getId)
+	userID := getCurrentJWT(c)
+	_, err := jh.service.DeleteJob(getId, userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
 		return

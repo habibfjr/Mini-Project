@@ -8,12 +8,12 @@ import (
 )
 
 type Service interface {
-	GenerateToken(username string) (string, error)
-	ValidateToken(token string) (bool, string, error)
+	GenerateToken(userID int) (string, error)
+	ValidateToken(token string) (bool, int, error)
 }
 
 type JwtService struct {
-	Username string
+	UserID int
 	jwt.RegisteredClaims
 }
 
@@ -23,9 +23,9 @@ func NewService() *JwtService {
 
 var SECRET_KEY = []byte(os.Getenv("SECRET_KEY"))
 
-func (s *JwtService) GenerateToken(username string) (string, error) {
+func (s *JwtService) GenerateToken(UserID int) (string, error) {
 	claim := JwtService{}
-	claim.Username = username
+	claim.UserID = UserID
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
 
@@ -37,7 +37,7 @@ func (s *JwtService) GenerateToken(username string) (string, error) {
 	return signedToken, nil
 }
 
-func (s *JwtService) ValidateToken(encodedToken string) (bool, string, error) {
+func (s *JwtService) ValidateToken(encodedToken string) (bool, int, error) {
 	token, err := jwt.ParseWithClaims(encodedToken, &JwtService{}, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 
@@ -48,13 +48,13 @@ func (s *JwtService) ValidateToken(encodedToken string) (bool, string, error) {
 		return []byte(SECRET_KEY), nil
 	})
 	if err != nil {
-		return false, "0", err
+		return false, 0, err
 	}
 
 	if claim, ok := token.Claims.(*JwtService); ok && token.Valid {
-		return true, claim.Username, nil
+		return true, claim.UserID, nil
 	} else {
-		return false, claim.Username, err
+		return false, claim.UserID, err
 	}
 
 }
